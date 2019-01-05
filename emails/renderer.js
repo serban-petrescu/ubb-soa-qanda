@@ -12,15 +12,16 @@ const templates = {};
 
 fs.readdirSync('templates').forEach(filename => {
     const content = fs.readFileSync(path.join('templates', filename), 'utf-8');
-    templates[filename] = content;
+    templates[path.basename(filename).split('.')[0]] = content;
     mustache.parse(content);
 });
 
 function render(template, data) {
     const content = templates[template];
     if (content) {
-        mustache.render(data);
+        return mustache.render(content, data);
     } else {
+        console.log('Unable to render template ' + template + '.');
         throw new NotFoundError();
     }
 }

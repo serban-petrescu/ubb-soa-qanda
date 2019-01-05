@@ -1,10 +1,13 @@
 const amqp = require('amqplib');
 
+const NAME = 'notifications';
+
 let channelPromise = amqp.connect(process.env.AMQP_URL)
     .then(connection => connection.createChannel())
     .then(channel => {
-        channel.assertQueue('notifications', { durable: false });
-        return channel;
+        console.log('Created message queue channel.');
+        return channel.assertQueue(NAME, { durable: false })
+            .then(() => channel);
     })
     .catch(error => {
         console.log('Unable to establish connection to queue: ' + error);
@@ -17,7 +20,8 @@ function toBuffer(event, data) {
 
 module.exports = {
     createNotification: function (event, data) {
-        channelPromise.then(channel => channel.sendToQueue('notifications', toBuffer(event, data)))
+        console.log('Sending event of type ' + event + ' via queue.');
+        channelPromise.then(channel => channel.sendToQueue(NAME, toBuffer(event, data)))
             .catch(error => console.log('Unable to send to queue: ' + error));
     }
 }

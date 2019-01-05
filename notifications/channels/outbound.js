@@ -1,10 +1,13 @@
 const amqp = require('amqplib');
 
+const NAME = 'emails';
+
 let channelPromise = amqp.connect(process.env.OUTBOUND_AMQP_URL)
     .then(connection => connection.createChannel())
     .then(channel => {
-        channel.assertQueue('emails', { durable: false });
-        return channel;
+        console.log('Created message queue channel.');
+        return channel.assertQueue(NAME, { durable: false })
+            .then(() => channel);
     })
     .catch(error => {
         console.log('Unable to establish connection to queue: ' + error);
@@ -17,7 +20,8 @@ function toBuffer(to, template, data) {
 
 module.exports = {
     createEmail: function (email, type, data) {
-        channelPromise.then(channel => channel.sendToQueue('emails', toBuffer(email, type, data)))
+        console.log('Enqueueing email towards ' + email + ' in message queue.');
+        channelPromise.then(channel => channel.sendToQueue(NAME, toBuffer(email, type, data)))
             .catch(error => console.log('Unable to send to queue: ' + error));
     }
 };
