@@ -1,0 +1,57 @@
+version: '3'
+
+services:
+  questions-db:
+    image: "mvertes/alpine-mongo:4.0.5-0"
+  notifications-db:
+    image: "mvertes/alpine-mongo:4.0.5-0"
+  notifications-mq:
+    image: "rabbitmq:3.7-alpine"
+  emails-mq:
+    image: "rabbitmq:3.7-alpine"
+  smtp:
+    build: ./smtp
+    ports:
+     - "1080:1080"
+
+  notifications:
+    build: ./notifications
+    ports:
+     - "3001:3001"
+    environment:
+      SERVER_PORT: 3001
+      MONGODB_URL: mongodb://notifications-db:27017/questions
+      INBOUND_AMQP_URL: amqp://notifications-mq:5672
+      OUTBOUND_AMQP_URL: amqp://emails-mq:5672
+      WAIT_HOSTS: notifications-db:27017, notifications-mq:5672, emails-mq:5672
+    links:
+     - emails-mq
+     - notifications-mq
+     - notifications-db
+
+  questions:
+    build: ./questions
+    ports:
+     - "3000:3000"
+    environment:
+      SERVER_PORT: 3000
+      MONGODB_URL: mongodb://questions-db:27017/questions
+      AMQP_URL: amqp://notifications-mq:5672
+      WAIT_HOSTS: questions-db:27017, notifications-mq:5672
+    links:
+     - questions-db
+     - notifications-mq
+  
+  emails:
+    build: ./emails
+    environment:
+      AMQP_URL: amqp://emails-mq:5672
+      SMTP_HOST: smtp
+      SMTP_PORT: 1025
+      SMTP_USER: test
+      SMTP_PASSWORD: test
+      SMTP_SENDER: test@example.com
+      WAIT_HOSTS: smtp:1025, emails-mq:5672
+    links:
+     - smtp
+     - emails-mq

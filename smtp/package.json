@@ -1,0 +1,13 @@
+{
+  "name": "smtp",
+  "version": "0.0.1",
+  "description": "Mock SMTP server",
+  "scripts": {
+    "start": "fake-smtp-server --auth test:test"
+  },
+  "author": "Serban Petrescu",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "fake-smtp-server": "^0.8.0"
+  }
+}
