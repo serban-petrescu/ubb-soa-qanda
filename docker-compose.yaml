@@ -5,6 +5,8 @@ services:
     image: "mvertes/alpine-mongo:4.0.5-0"
   notifications-db:
     image: "mvertes/alpine-mongo:4.0.5-0"
+  users-db:
+    image: "mvertes/alpine-mongo:4.0.5-0"
   notifications-mq:
     image: "rabbitmq:3.7-alpine"
   emails-mq:
@@ -16,14 +18,12 @@ services:
 
   notifications:
     build: ./notifications
-    ports:
-     - "3001:3001"
     environment:
-      SERVER_PORT: 3001
       MONGODB_URL: mongodb://notifications-db:27017/questions
       INBOUND_AMQP_URL: amqp://notifications-mq:5672
       OUTBOUND_AMQP_URL: amqp://emails-mq:5672
       WAIT_HOSTS: notifications-db:27017, notifications-mq:5672, emails-mq:5672
+      WAIT_HOSTS_TIMEOUT: 120
     links:
      - emails-mq
      - notifications-mq
@@ -31,13 +31,11 @@ services:
 
   questions:
     build: ./questions
-    ports:
-     - "3000:3000"
     environment:
-      SERVER_PORT: 3000
       MONGODB_URL: mongodb://questions-db:27017/questions
       AMQP_URL: amqp://notifications-mq:5672
       WAIT_HOSTS: questions-db:27017, notifications-mq:5672
+      WAIT_HOSTS_TIMEOUT: 120
     links:
      - questions-db
      - notifications-mq
@@ -52,6 +50,44 @@ services:
       SMTP_PASSWORD: test
       SMTP_SENDER: test@example.com
       WAIT_HOSTS: smtp:1025, emails-mq:5672
+      WAIT_HOSTS_TIMEOUT: 120
     links:
      - smtp
      - emails-mq
+
+  users:
+    build: ./users
+    environment:
+      AMQP_URL: amqp://emails-mq:5672
+      MONGODB_URL: mongodb://users-db:27017/questions
+      REGISTRATION_BASE_URL: ${UI_BASE_URL}
+      JWT_KEY: ${JWT_KEY}
+      OAUTH_CLIENT: ${OAUTH_CLIENT}
+      OAUTH_SECRET: ${OAUTH_SECRET}
+      WAIT_HOSTS: emails-mq:5672, users-db:27017
+      WAIT_HOSTS_TIMEOUT: 120
+    links:
+     - emails-mq
+     - users-db
+
+  gateway:
+    build: ./gateway
+    ports:
+     - "443:8080"
+    environment:
+      ZUUL_ROUTES_UI_URL: http://app:3000
+      ZUUL_ROUTES_OAUTH_URL: http://users:3000/oauth
+      ZUUL_ROUTES_USERS_URL: http://users:3000/users
+      ZUUL_ROUTES_QUESTIONS_URL: http://questions:3000/questions
+      ZUUL_ROUTES_NOTIFICATIONS_URL: http://notifications:3000/notifications
+      ZUUL_ROUTES_SMTP_URL: http://smtp:1080
+      OAUTH_CLIENT: ${OAUTH_CLIENT}
+      OAUTH_SECRET: ${OAUTH_SECRET}
+      OAUTH_KEY: ${JWT_KEY}
+      WAIT_HOSTS: notifications:3000, questions:3000, users:3000, smtp:1080
+      WAIT_HOSTS_TIMEOUT: 120
+    links:
+     - notifications
+     - questions
+     - users
+     - smtp

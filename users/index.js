@@ -7,5 +7,6 @@ const bodyParser = require('body-parser');
 
 const app = express();
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(require('./routes'));
 app.listen(process.env.SERVER_PORT || 3000);

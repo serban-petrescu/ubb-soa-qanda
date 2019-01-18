@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Mock SMTP server",
   "scripts": {
-    "start": "fake-smtp-server --auth test:test"
+    "start": "fake-smtp-server"
   },
   "author": "Serban Petrescu",
   "license": "Apache-2.0",

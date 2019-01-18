@@ -26,7 +26,7 @@ const QuestionController = {
         });
     },
     readPage: function (skip, limit) {
-        return QuestionModel.find().skip(skip).limit(limit).exec();
+        return QuestionModel.find({}, 'userId title created').skip(skip).limit(limit).exec();
     },
     create: function (userId, title, text) {
         return QuestionModel.create(new QuestionModel({ userId, title, text, answers: [] }));

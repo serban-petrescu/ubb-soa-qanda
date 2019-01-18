@@ -1,0 +1,20 @@
+@import "~mini.css/dist/mini-default.css";
+@import "~react-quill/dist/quill.snow.css";
+@import '~include-media/dist/_include-media.scss';
+
+.quill [role="button"] {
+    margin: 0;
+    padding: 0;
+}
+
+.quill {
+    background: #f8f8f8;
+    margin: 0.25rem;
+}
+
+@include media(">=tablet") {
+    .container {
+        padding-left: 7rem;
+        padding-right: 7rem;
+    }
+}
