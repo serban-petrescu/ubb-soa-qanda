@@ -6,4 +6,3 @@ zuul.routes:
   users.path: /users/**
   questions.path: /questions/**
   notifications.path: /notifications/**
-  smtp.path: /smtp

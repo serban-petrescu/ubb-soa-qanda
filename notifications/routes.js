@@ -31,15 +31,25 @@ function validate(req) {
     }
 }
 
-router.post('/preferences', [
+router.put('/preferences', [
     header('x-user-id').isString().isLength({ min: 1 }),
     body('emailAddress').isEmail(),
-    body('websocket.*').isBoolean(),
+    body('push.*').isBoolean(),
     body('email.*').isBoolean()
 ], function (req, res) {
     const userId = req.header('x-user-id');
     validate(req)
-        .then(() => PreferencesController.upsert(userId, req.body.emailAddress, req.body.websocket, req.body.email))
+        .then(() => PreferencesController.upsert(userId, req.body.emailAddress, req.body.push, req.body.email))
+        .then(results => res.json(results))
+        .catch(error => handleError(error, res));
+});
+
+router.get('/preferences', [
+    header('x-user-id').isString().isLength({ min: 1 })
+], function (req, res) {
+    const userId = req.header('x-user-id');
+    validate(req)
+        .then(() => PreferencesController.read(userId))
         .then(results => res.json(results))
         .catch(error => handleError(error, res));
 });

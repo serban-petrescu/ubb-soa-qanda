@@ -1,10 +1,11 @@
 import React from "react";
+import { logout } from "./token/store";
 
 const Menu = () => (
-    <header>
+    <header className="sticky">
         <a href="#/" className="logo">Q &amp; A</a>
-        <a href="#/logout" className="button" style={{float: "right"}}><span className="icon-lock"></span></a>
-        <a href="#/settings" className="button" style={{float: "right"}}><span className="icon-settings"></span></a>
+        <button onClick={logout} className="button" style={{float: "right"}}><span className="icon-lock"></span></button>
+        <a href="#/preferences" className="button" style={{float: "right"}}><span className="icon-settings"></span></a>
     </header>
 );
 

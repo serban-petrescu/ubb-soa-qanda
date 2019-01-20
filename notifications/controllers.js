@@ -13,13 +13,13 @@ const PreferencesController = {
                 return p || { ...defaults, emailAddress: userId };
             });
     },
-    upsert: function(userId, emailAddress, websocket = { }, email = { }) {
+    upsert: function(userId, emailAddress, push = { }, email = { }) {
         return PreferenceModel.findOne({ userId })
             .then(preference => {
                 if (preference) {
                     preference.emailAddress = emailAddress || preference.emailAddress;
                     preference.email = { ...defaults.email, ...email };
-                    preference.websocket = { ...defaults.websocket, ...websocket };
+                    preference.push = { ...defaults.push, ...push };
                     return preference.save();
                 } else {
                     return PreferenceModel.create({ userId, ...defaults, emailAddress });
@@ -34,7 +34,7 @@ const NotificationController = {
             if (preference.email[type]) {
                 outbound.createEmail(preference.emailAddress, type, data);
             }
-            if (preference.websocket[type]) {
+            if (preference.push[type]) {
                 // TODO add websocket support
             }
         });
@@ -44,15 +44,20 @@ const NotificationController = {
 inbound.on('questionUpdated', ({ question }) => {
     (question.answers || [])
         .map(a => a.userId)
+        .filter(userId => userId !== question.userId)
         .forEach(userId => NotificationController.send(userId, 'questionUpdated', question));
 });
 
 inbound.on('questionAnswered', ({ question, answer }) => {
-    NotificationController.send(question.userId, 'questionAnswered', { question, answer });
+    if (question.userId !== answer.userId) {
+        NotificationController.send(question.userId, 'questionAnswered', { question, answer });
+    }
 });
 
 inbound.on('answerUpdated', ({ question, answer }) => {
-    NotificationController.send(question.userId, 'answerUpdated', { question, answer });
+    if (question.userId !== answer.userId) {
+        NotificationController.send(question.userId, 'answerUpdated', { question, answer });
+    }
 });
 
 module.exports = {

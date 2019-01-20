@@ -4,8 +4,8 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
     userId: { type: String, unique: true },
     password: String,
-    active: { type: Boolean, unique: true },
-    token: String
+    active: Boolean,
+    token: { type: String, unique: true }
 });
 
 module.exports = {

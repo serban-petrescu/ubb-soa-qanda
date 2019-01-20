@@ -60,7 +60,7 @@ services:
     environment:
       AMQP_URL: amqp://emails-mq:5672
       MONGODB_URL: mongodb://users-db:27017/questions
-      REGISTRATION_BASE_URL: ${UI_BASE_URL}
+      REGISTRATION_BASE_URL: ${UI_BASE_URL}#/activate/
       JWT_KEY: ${JWT_KEY}
       OAUTH_CLIENT: ${OAUTH_CLIENT}
       OAUTH_SECRET: ${OAUTH_SECRET}
@@ -79,15 +79,13 @@ services:
       ZUUL_ROUTES_OAUTH_URL: http://users:3000/oauth
       ZUUL_ROUTES_USERS_URL: http://users:3000/users
       ZUUL_ROUTES_QUESTIONS_URL: http://questions:3000/questions
-      ZUUL_ROUTES_NOTIFICATIONS_URL: http://notifications:3000/notifications
-      ZUUL_ROUTES_SMTP_URL: http://smtp:1080
+      ZUUL_ROUTES_NOTIFICATIONS_URL: http://notifications:3000
       OAUTH_CLIENT: ${OAUTH_CLIENT}
       OAUTH_SECRET: ${OAUTH_SECRET}
       OAUTH_KEY: ${JWT_KEY}
-      WAIT_HOSTS: notifications:3000, questions:3000, users:3000, smtp:1080
+      WAIT_HOSTS: notifications:3000, questions:3000, users:3000
       WAIT_HOSTS_TIMEOUT: 120
     links:
      - notifications
      - questions
      - users
-     - smtp

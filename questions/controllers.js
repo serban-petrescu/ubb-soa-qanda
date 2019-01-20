@@ -65,7 +65,7 @@ const AnswerController = {
     create: function (userId, questionId, text) {
         return QuestionController.readSingle(questionId)
             .then(question => {
-                question.answers.push({ userId, text, votes: {} });
+                question.answers.push({ userId, text, votes: [] });
                 return question.save()
                     .then(updated => {
                         const answer = updated.answers[updated.answers.length - 1];
@@ -95,7 +95,12 @@ const VoteController = {
     vote: function (userId, questionId, answerId, positive) {
         return loadQuestionAndAnswer(questionId, answerId)
             .then(({ question, answer }) => {
-                answer.votes.set(userId, positive);
+                const index = answer.votes.findIndex(v => v.userId === userId);
+                if (index >= 0) {
+                    answer.votes[index].positive = positive;
+                } else {
+                    answer.votes.push({ userId, positive });
+                }
                 return question.save().then(updated => findAnswer(updated, answerId));
             });
     },
@@ -103,7 +108,10 @@ const VoteController = {
     unvote: function (userId, questionId, answerId) {
         return loadQuestionAndAnswer(questionId, answerId)
             .then(({ question, answer }) => {
-                answer.votes.delete(userId);
+                const index = answer.votes.findIndex(v => v.userId === userId);
+                if (index >= 0) {
+                    answer.votes.splice(index, 1);
+                }
                 return question.save().then(updated => findAnswer(updated, answerId));
             });
     }

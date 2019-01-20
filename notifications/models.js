@@ -9,7 +9,7 @@ const Settings = {
 
 const PreferenceSchema = new Schema({
     userId: String,
-    websocket: Settings,
+    push: Settings,
     email: Settings,
     emailAddress: String
 });
@@ -17,7 +17,7 @@ const PreferenceSchema = new Schema({
 module.exports = {
     PreferenceModel: mongoose.model('Preference', PreferenceSchema),
     defaults: {
-        websocket: {
+        push: {
             questionAnswered: true,
             questionUpdated: true,
             answerUpdated: true

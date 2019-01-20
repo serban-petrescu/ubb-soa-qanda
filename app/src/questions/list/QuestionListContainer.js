@@ -6,6 +6,7 @@ import store from "../../store";
 import QuestionList from "./QuestionList";
 import { readPage } from "../../api/questions";
 import { arrayToMap, mapToArray } from "../../utils";
+import { openModalForError } from "../../modals/modals";
 
 const init = () => store.dispatch({type: "QUESTION_LIST_INIT"});
 const getState = (state = store.getState()) => state.questions.list;
@@ -18,7 +19,8 @@ const mapStateToProps = (state, props) => {
 }
 
 const loadMore = () => readPage((Object.keys(getState().questions || {})).length)
-    .then(questions => store.dispatch({type: "QUESTION_LIST_RECEIVE", questions: arrayToMap(questions, "_id")}));
+    .then(questions => store.dispatch({type: "QUESTION_LIST_RECEIVE", questions: arrayToMap(questions, "_id")}))
+    .catch(openModalForError);
 
 export default compose(
     setDisplayName("QuestionListContainer"),

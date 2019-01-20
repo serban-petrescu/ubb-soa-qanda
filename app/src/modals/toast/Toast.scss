@@ -1,0 +1,21 @@
+@import '~include-media/dist/_include-media.scss';
+
+.default-toast {
+    position: fixed;
+    z-index: 100;
+    bottom: 20px;
+    text-align: center;
+}
+
+
+@include media(">=tablet") {
+    .default-toast {
+        width: 50vw;
+    }
+}
+
+@include media("<tablet") {
+    .default-toast {
+        width: 90vw;
+    }
+}

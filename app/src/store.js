@@ -1,15 +1,23 @@
 import { createStore, combineReducers } from "redux";
 
+import modalsReducer from "./modals/reducer";
 import loginReducer from "./login/reducer";
+import registerReducer from "./register/reducer";
 import questionsReducer from "./questions/reducer";
+import preferencesReducer from "./preferences/reducer";
 import { reducer as tokenReducer } from "./token/store";
 
 const reducer = combineReducers({
     login: loginReducer,
+    register: registerReducer,
     token: tokenReducer,
-    questions: questionsReducer
+    questions: questionsReducer,
+    modals: modalsReducer,
+    preferences: preferencesReducer
 });
 
 const store = createStore(reducer, {});
+
+window.addEventListener("hashchange", () => store.dispatch({ type: "WINDOW_HASH_CHANGE", hash: window.location.hash }));
 
 export default store;

@@ -39,7 +39,7 @@ const UserController = {
         return UserModel.find({ token }).exec().then(results => {
             if (results && results.length === 1) {
                 results[0].active = true;
-                results[0].token = '';
+                results[0].token = null;
                 return results[0].save();
             } else {
                 throw new NotFoundError();

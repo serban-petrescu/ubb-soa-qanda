@@ -16,3 +16,15 @@ export function arrayToMap(array, key, callback = e => e) {
     }
     return result;
 }
+
+export function replaceElementById(array, newElement, property = "_id") {
+    const index = array.findIndex(o => o[property] === newElement[property]);
+    const copy = array.slice();
+    if (index >= 0) {
+        copy[index] = newElement;
+        return copy;
+    } else {
+        copy.push(newElement);
+        return copy;
+    }
+}

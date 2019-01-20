@@ -4,6 +4,7 @@
   "private": true,
   "proxy": "https://192.168.99.100",
   "dependencies": {
+    "email-validator": "^2.0.4",
     "include-media": "^1.4.9",
     "mini.css": "^3.0.1",
     "moment": "^2.23.0",
