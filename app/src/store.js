@@ -5,7 +5,8 @@ import loginReducer from "./login/reducer";
 import registerReducer from "./register/reducer";
 import questionsReducer from "./questions/reducer";
 import preferencesReducer from "./preferences/reducer";
-import { reducer as tokenReducer } from "./token/store";
+import tokenReducer from "./token/reducer";
+import pushReducer from "./sw/reducer";
 
 const reducer = combineReducers({
     login: loginReducer,
@@ -13,7 +14,8 @@ const reducer = combineReducers({
     token: tokenReducer,
     questions: questionsReducer,
     modals: modalsReducer,
-    preferences: preferencesReducer
+    preferences: preferencesReducer,
+    push: pushReducer
 });
 
 const store = createStore(reducer, {});

@@ -4,7 +4,7 @@ import { compose, setDisplayName, withProps, lifecycle } from "recompose";
 import Login from "./Login";
 import store from "../store";
 import { createToken } from "../api/oauth";
-import token from "../token/store";
+import token from "../token/storage";
 
 const getState = (state = store.getState()) => state.login;
 

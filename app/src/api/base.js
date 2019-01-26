@@ -1,4 +1,4 @@
-import token from "../token/store";
+import token from "../token/storage";
 
 const auth = () => {
     const value = token.get();

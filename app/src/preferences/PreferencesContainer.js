@@ -3,20 +3,21 @@ import { compose, setDisplayName, withProps, lifecycle } from "recompose";
 
 import store from "../store";
 import Preferences from "./Preferences";
+import pushMonitor from "../sw/pushMonitor";
 import { readPreferences, upsertPreferences } from "../api/preferences";
 import { openModalForError, toast } from "../modals/modals";
 
 const init = () => {
     store.dispatch({ type: "PREFERENCES_INIT" });
     readPreferences()
-        .then(data => store.dispatch({type: "PREFERENCES_RECEIVE", data}))
+        .then(data => store.dispatch({ type: "PREFERENCES_RECEIVE", data }))
         .catch(openModalForError);
 };
 
 const save = () => {
     upsertPreferences(store.getState().preferences)
         .then(data => {
-            store.dispatch({type: "PREFERENCES_RECEIVE", data});
+            store.dispatch({ type: "PREFERENCES_RECEIVE", data });
             toast("Your settings were successfully updated!");
         }).catch(openModalForError);
 }
@@ -24,11 +25,12 @@ const save = () => {
 export default compose(
     setDisplayName("PreferencesContainer"),
     lifecycle({ componentDidMount: init }),
-    connect(state => state.preferences),
+    connect(state => ({ ...state.preferences, pushStatus: state.push })),
     withProps({
         onChangeEmailAddress: value => store.dispatch({ type: "PREFERENCES_UPDATE_PROPERTY", property: "emailAddress", value }),
         onChangePush: (flag, value) => store.dispatch({ type: "PREFERENCES_UPDATE_FLAG", group: "push", flag, value }),
         onChangeEmail: (flag, value) => store.dispatch({ type: "PREFERENCES_UPDATE_FLAG", group: "email", flag, value }),
+        onPushToggle: value => value ? pushMonitor.subscribe() : pushMonitor.unsubscribe(),
         onSave: save
     })
 )(Preferences);

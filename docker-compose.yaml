@@ -16,6 +16,9 @@ services:
     ports:
      - "1080:1080"
 
+  app:
+    build: ./app
+
   notifications:
     build: ./notifications
     environment:
@@ -75,7 +78,7 @@ services:
     ports:
      - "443:8080"
     environment:
-      ZUUL_ROUTES_UI_URL: http://app:3000
+      ZUUL_ROUTES_UI_URL: http://app
       ZUUL_ROUTES_OAUTH_URL: http://users:3000/oauth
       ZUUL_ROUTES_USERS_URL: http://users:3000/users
       ZUUL_ROUTES_QUESTIONS_URL: http://questions:3000/questions
@@ -83,7 +86,7 @@ services:
       OAUTH_CLIENT: ${OAUTH_CLIENT}
       OAUTH_SECRET: ${OAUTH_SECRET}
       OAUTH_KEY: ${JWT_KEY}
-      WAIT_HOSTS: notifications:3000, questions:3000, users:3000
+      WAIT_HOSTS: notifications:3000, questions:3000, users:3000, app:80
       WAIT_HOSTS_TIMEOUT: 120
     links:
      - notifications

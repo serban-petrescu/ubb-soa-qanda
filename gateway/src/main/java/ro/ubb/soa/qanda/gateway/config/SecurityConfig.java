@@ -34,7 +34,7 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
 	@Override
 	public void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
-				.antMatchers("/oauth/*", "/users", "/users/*").permitAll()
+				.antMatchers("/oauth/**", "/users", "/users/**", "/app/**", "/app").permitAll()
 				.anyRequest().authenticated()
 				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER);
 	}

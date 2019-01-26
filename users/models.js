@@ -5,7 +5,7 @@ const UserSchema = new Schema({
     userId: { type: String, unique: true },
     password: String,
     active: Boolean,
-    token: { type: String, unique: true }
+    token: String
 });
 
 module.exports = {

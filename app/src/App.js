@@ -4,6 +4,9 @@ import store from "./store";
 import { Provider, connect } from "react-redux";
 import { HashRouter as Router, Switch, Route } from "react-router-dom";
 
+import "./sw/init";
+import "./token/init";
+
 import Landing from "./landing/Landing";
 import LoginContainer from "./login/LoginContainer";
 import QuestionListContainer from "./questions/list/QuestionListContainer";

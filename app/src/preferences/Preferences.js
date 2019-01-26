@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import Menu from "../Menu";
 import EnabledTypes from "./EnabledTypes";
 
-const Preferences = ({ push, email, emailAddress, onChangePush, onChangeEmail, onChangeEmailAddress, onSave }) => (
+const Preferences = ({ push, email, emailAddress, pushStatus, onPushToggle, onChangePush, onChangeEmail, onChangeEmailAddress, onSave }) => (
     <div>
         <Menu />
         <div className="container">
@@ -17,7 +17,15 @@ const Preferences = ({ push, email, emailAddress, onChangePush, onChangeEmail, o
                     </div>
                 </div>
             </EnabledTypes>
-            <EnabledTypes title="Push Notifications" onChange={onChangePush} {...push} />
+            <EnabledTypes title="Push Notifications" onChange={onChangePush} {...push} >
+                <div className="row responsive-label">
+                    <div className="col-sm-12 col-md-3"><label>Push Enabled</label></div>
+                    <div className="col-sm-12 col-md">
+                        <input type="checkbox" checked={pushStatus.subscribed} disabled={!pushStatus.supported} 
+                            onChange={() => onPushToggle(!pushStatus.subscribed)} />
+                    </div>
+                </div>
+            </EnabledTypes>
             <button className="primary" onClick={onSave}>Save</button>
         </div>
     </div>
@@ -34,11 +42,17 @@ Preferences.propTypes = {
         questionUpdated: PropTypes.bool,
         answerUpdated: PropTypes.bool
     }),
+    pushStatus: PropTypes.shape({
+        supported: PropTypes.bool,
+        permitted: PropTypes.bool,
+        subscribed: PropTypes.bool
+    }),
     emailAddress: PropTypes.string,
     onChangePush: PropTypes.func,
     onChangeEmail: PropTypes.func,
     onChangeEmailAddress: PropTypes.func,
-    onSave: PropTypes.func
+    onSave: PropTypes.func,
+    onPushToggle: PropTypes.func
 };
 
 export default Preferences;

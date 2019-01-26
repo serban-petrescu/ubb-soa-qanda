@@ -11,7 +11,8 @@ const PreferenceSchema = new Schema({
     userId: String,
     push: Settings,
     email: Settings,
-    emailAddress: String
+    emailAddress: String,
+    subscription: Schema.Types.Mixed
 });
 
 module.exports = {

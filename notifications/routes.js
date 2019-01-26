@@ -54,4 +54,24 @@ router.get('/preferences', [
         .catch(error => handleError(error, res));
 });
 
+router.put('/preferences/push-subscription', [
+    header('x-user-id').isString().isLength({ min: 1 })
+], function (req, res) {
+    const userId = req.header('x-user-id');
+    validate(req)
+        .then(() => PreferencesController.updateSubscription(userId, req.body))
+        .then(results => res.json(results))
+        .catch(error => handleError(error, res));
+});
+
+router.delete('/preferences/push-subscription', [
+    header('x-user-id').isString().isLength({ min: 1 })
+], function (req, res) {
+    const userId = req.header('x-user-id');
+    validate(req)
+        .then(() => PreferencesController.updateSubscription(userId))
+        .then(results => res.json(results))
+        .catch(error => handleError(error, res));
+});
+
 module.exports = router;

@@ -1,5 +1,5 @@
 import React from "react";
-import { logout } from "./token/store";
+import logout from "./token/logout";
 
 const Menu = () => (
     <header className="sticky">
