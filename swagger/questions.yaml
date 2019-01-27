@@ -1,0 +1,338 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: "Questions service"
+tags:
+- name: "questions"
+  description: "Ask, view and update questions."
+- name: "answers"
+  description: "Answer questions and update answers."
+- name: "votes"
+  description: "Vote and un-vote answers."
+schemes:
+- "http"
+produces: 
+  - "application/json"
+paths:
+  /questions:
+    get:
+      tags: ["questions"]
+      description: "Read an page of question."
+      produces: ["application/json"]
+      parameters:
+        - name: "skip"
+          description: 'The number of questions to skip.'
+          type: "integer"
+          in: query
+        - name: "limit"
+          description: 'The max number of questions to return.'
+          type: "integer"
+          in: query
+      responses:
+        200:
+          description: "Successful operation."
+          schema:
+            $ref: '#/definitions/QuestionPage'
+    post:
+      tags: ["questions"]
+      description: "Ask a new question."
+      produces: ["application/json"]
+      consumes: ["application/json"]
+      parameters:
+        - name: "payload"
+          description: 'The new question.'
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/InboundQuestion'
+      responses:
+        200:
+          description: "Successful operation."
+          schema:
+            $ref: '#/definitions/FullQuestion'
+        400:
+          description: "Bad request: malformed body, missing parameters."
+  /questions/{id}:
+    get:
+      tags: ["questions"]
+      description: "Read an existing question."
+      produces: ["application/json"]
+      parameters:
+        - name: "id"
+          description: 'The ID of the question to be updated.'
+          type: "string"
+          in: path
+          required: true
+      responses:
+        200:
+          description: "Successful operation."
+          schema:
+            $ref: '#/definitions/FullQuestion'
+        400:
+          description: "Bad request: malformed body, missing parameters."
+        404:
+          description: "Not found: no question matches the given ID."
+    put:
+      tags: ["questions"]
+      description: "Update an existing question."
+      produces: ["application/json"]
+      consumes: ["application/json"]
+      parameters:
+        - name: "id"
+          description: 'The ID of the question to be updated.'
+          type: "string"
+          in: path
+          required: true
+        - name: "payload"
+          description: 'The updated question.'
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/InboundQuestion'
+      responses:
+        200:
+          description: "Successful operation."
+          schema:
+            $ref: '#/definitions/FullQuestion'
+        400:
+          description: "Bad request: malformed body, missing parameters."
+        401:
+          description: "Not authorized: the current user is not the same as the question's author."
+        404:
+          description: "Not found: no question matches the given ID."
+  /questions/{questionId}/answers:
+    post:
+      tags: ["answers"]
+      description: "Answer an existing question."
+      produces: ["application/json"]
+      consumes: ["application/json"]
+      parameters:
+        - name: "questionId"
+          description: 'The ID of the question to be answered.'
+          type: "string"
+          in: path
+          required: true
+        - name: "payload"
+          description: 'The answer.'
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/InboundAnswer'
+      responses:
+        200:
+          description: "Successful operation."
+          schema:
+            $ref: '#/definitions/FullAnswer'
+        400:
+          description: "Bad request: malformed body, missing parameters."
+        404:
+          description: "Not found: no question matches the given ID."
+  /questions/{questionId}/answers/{answerId}:
+    put:
+      tags: ["answers"]
+      description: "Update an answer to a question."
+      produces: ["application/json"]
+      consumes: ["application/json"]
+      parameters:
+        - name: "questionId"
+          description: 'The ID of the question.'
+          type: "string"
+          in: path
+          required: true
+        - name: "answerId"
+          description: 'The ID of the answer to be updated.'
+          type: "string"
+          in: path
+          required: true
+        - name: "payload"
+          description: 'The answer.'
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/InboundAnswer'
+      responses:
+        200:
+          description: "Successful operation."
+          schema:
+            $ref: '#/definitions/FullAnswer'
+        400:
+          description: "Bad request: malformed body, missing parameters."
+        401:
+          description: "Not authorized: the current user is not the same as the answers's author."
+        404:
+          description: "Not found: no question or answer matches the given ID."
+  /questions/{questionId}/answers/{answerId}/vote:
+    post:
+      tags: ["votes"]
+      description: "Vote an answer to a question. If a vote already exists, it is replaced."
+      produces: ["application/json"]
+      consumes: ["application/json"]
+      parameters:
+        - name: "questionId"
+          description: 'The ID of the question.'
+          type: "string"
+          in: path
+          required: true
+        - name: "answerId"
+          description: 'The ID of the answer to be votes.'
+          type: "string"
+          in: path
+          required: true
+        - name: "payload"
+          description: 'The vote.'
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/InboundVote'
+      responses:
+        200:
+          description: "Successful operation."
+          schema:
+            $ref: '#/definitions/FullAnswer'
+        400:
+          description: "Bad request: malformed body, missing parameters."
+        404:
+          description: "Not found: no question or answer matches the given ID."
+    delete:
+      tags: ["votes"]
+      description: "Remove the vote for answer to a question."
+      produces: ["application/json"]
+      consumes: ["application/json"]
+      parameters:
+        - name: "questionId"
+          description: 'The ID of the question.'
+          type: "string"
+          in: path
+          required: true
+        - name: "answerId"
+          description: 'The ID of the answer to be votes.'
+          type: "string"
+          in: path
+          required: true
+      responses:
+        200:
+          description: "Successful operation."
+          schema:
+            $ref: '#/definitions/FullAnswer'
+        404:
+          description: "Not found: no question or answer matches the given ID."
+
+definitions:
+  InboundQuestion:
+    description: "A new or updated question."
+    type: "object"
+    properties:
+      title:
+        type: "string"
+        description: "The title of the question."
+        example: "How to use the printer from the 2nd floor?"
+      text:
+        type: "string"
+        description: "The body of the question. May include simple HTML markup."
+        example: "I tried restarting it, but it <b>did not work</b>."
+  InboundAnswer:
+    description: "A new or updated answer."
+    type: "object"
+    properties:
+      text:
+        type: "string"
+        description: "The body of the answer. May include simple HTML markup."
+        example: "Try restarting it, <i>again</i>."
+  FullQuestion:
+    description: "A question with the full details."
+    type: "object"
+    properties:
+      _id:
+        type: "string"
+        description: "The ID of the question."
+        example: "8449ec7a-2e07-423b-9b95-7d2545a9faa2"
+      userId:
+        type: "string"
+        description: "The author of the question."
+        example: "Test@example.com"
+      createdAt:
+        type: "string"
+        description: "The date and time at which the question was created."
+        example: "2019-01-27T16:19:20.671Z"
+      title:
+        type: "string"
+        description: "The title of the question."
+        example: "How to use the printer from the 2nd floor?"
+      text:
+        type: "string"
+        description: "The body of the question. May include simple HTML markup."
+        example: "I tried restarting it, but it <b>did not work</b>."
+      answers:
+        type: "array"
+        items:
+          $ref: '#/definitions/FullAnswer'
+  QuestionPage:
+    description: "A page of questions."
+    type: "array"
+    items:
+      $ref: '#/definitions/PartialQuestion'
+  PartialQuestion:
+    description: "A question with the a subset of details."
+    type: "object"
+    properties:
+      _id:
+        type: "string"
+        description: "The ID of the question."
+        example: "8449ec7a-2e07-423b-9b95-7d2545a9faa2"
+      userId:
+        type: "string"
+        description: "The author of the question."
+        example: "Test@example.com"
+      createdAt:
+        type: "string"
+        description: "The date and time at which the question was created."
+        example: "2019-01-27T16:19:20.671Z"
+      title:
+        type: "string"
+        description: "The title of the question."
+        example: "How to use the printer from the 2nd floor?"
+  FullAnswer:
+    description: "An answer with the full details."
+    type: "object"
+    properties:
+      _id:
+        type: "string"
+        description: "The ID of the answer."
+        example: "8449ec7a-2e07-423b-9b95-7d2545a9faa2"
+      userId:
+        type: "string"
+        description: "The author of the answer."
+        example: "Test@example.com"
+      createdAt:
+        type: "string"
+        description: "The date and time at which the answer was created."
+        example: "2019-01-27T16:19:20.671Z"
+      text:
+        type: "string"
+        description: "The body of the answer. May include simple HTML markup."
+        example: "Try restarting it, <i>again</i>."
+      votes:
+        type: "array"
+        items:
+          $ref: '#/definitions/Vote'
+  InboundVote:
+    description: "A new vote for an answer."
+    type: "object"
+    properties:
+      positive:
+        type: "boolean"
+        description: "Flag indicating if the vote is positive."
+        example: false
+  Vote:
+    description: "A vote for an answer."
+    type: "object"
+    properties:
+      userId:
+        type: "string"
+        description: "The author of the vote."
+        example: "Test@example.com"
+      positive:
+        type: "boolean"
+        description: "Flag indicating if the vote was positive."
+        example: false
+    

@@ -1,0 +1,97 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: "Notification service"
+tags:
+- name: "preferences"
+  description: "Manage notification preferences"
+schemes:
+- "http"
+produces: 
+  - "application/json"
+paths:
+  /notifications/preferences:
+    get:
+      tags: ["preferences"]
+      description: "Read the current user's notification preferences."
+      produces: ["application/json"]
+      responses:
+        200:
+          description: "Successful operation."
+          schema:
+            $ref: '#/definitions/Preferences'
+    put:
+      tags: ["preferences"]
+      description: "Update the current user's notification preferences."
+      produces: ["application/json"]
+      parameters:
+        - name: "payload"
+          description: 'The updated preferences.'
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Preferences'
+      responses:
+        200:
+          description: "Successful operation."
+          schema:
+            $ref: '#/definitions/Preferences'
+        400:
+          description: "Bad request: malformed body."
+  /notifications/preferences/push-subscription:
+    put:
+      tags: ["preferences"]
+      description: "Update the current user's push subscription."
+      produces: ["application/json"]
+      parameters:
+        - name: "payload"
+          description: 'The push subscription information from the Web Push API.'
+          in: body
+          required: true
+          schema:
+            type: "object"
+      responses:
+        200:
+          description: "Successful operation."
+          schema:
+            $ref: '#/definitions/Preferences'
+    delete:
+      tags: ["preferences"]
+      description: "Remove the current user's push subscription."
+      produces: ["application/json"]
+      responses:
+        200:
+          description: "Successful operation."
+          schema:
+            $ref: '#/definitions/Preferences'
+  
+definitions:
+  Preferences:
+    type: "object"
+    properties:
+      emailAddress:
+        type: "string"
+        description: "The email where to send notifications for the current user."
+        example: "Test@example.com"
+      email:
+        $ref: '#/definitions/Flags'
+      push:
+        $ref: '#/definitions/Flags'
+  Flags:
+    type: "object"
+    properties:
+      questionAnswered:
+        type: "boolean"
+        description: "Enablement flag for 'Question Answered' notifications."
+        example: true
+      questionUpdated:
+        type: "boolean"
+        description: "Enablement flag for 'Question Updated' notifications."
+        example: true
+      answerUpdated:
+        type: "boolean"
+        description: "Enablement flag for 'Answer Updated' notifications."
+        example: true
+    
+    
+  

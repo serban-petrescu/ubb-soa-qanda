@@ -1,0 +1,123 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: "Users service"
+tags:
+- name: "users"
+  description: "Register and activate users"
+- name: "oauth"
+  description: "Authenticate users"
+schemes:
+- "http"
+produces: 
+  - "application/json"
+paths:
+  /users:
+    post:
+      tags: ["users"]
+      description: "Register a new (inactive user). Triggers a registration email upon success."
+      produces: ["application/json"]
+      consumes: ["application/json"]
+      parameters:
+        - name: "payload"
+          description: 'The user to be registered.'
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/InboundUser'
+      responses:
+        204:
+          description: "Successful operation."
+        400:
+          description: "Bad request: malformed body, invalid username, already used username."
+  /users/activate:
+    post:
+      tags: ["users"]
+      description: "Activate an user."
+      produces: ["application/json"]
+      consumes: ["application/json"]
+      parameters:
+        - name: "payload"
+          description: 'The activation token.'
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ActivationToken'
+      responses:
+        204:
+          description: "Successful operation."
+        400:
+          description: "Bad request: malformed body, missing token."
+        404:
+          description: "No user was found for the given token."
+  /oauth/token:
+    post:
+      tags: ["oauth"]
+      description: "Authenticate an user."
+      produces: ["application/json"]
+      consumes: ["application/x-www-form-urlencoded"]
+      parameters:
+        - name: "username"
+          in: formData
+          type: "string"
+          description: "The user's username (email)."
+        - name: "password"
+          in: formData
+          type: "string"
+          description: "The user's password."
+        - name: "grant_type"
+          in: formData
+          type: "string"
+          description: "The OAuth grant type (just 'password' is supported for now)."
+        - name: "authorization"
+          in: header
+          type: "string"
+          description: "Basic HTTP authorization containing the client ID and client secret."
+      responses:
+        200:
+          description: "Successful operation."
+          schema:
+            $ref: '#/definitions/OAuthToken'
+        400:
+          description: "Bad request: malformed body, missing properties."
+        401:
+          description: "Invalid client credentials."
+        404:
+          description: "No user was found matching the criteria."
+definitions:
+  InboundUser:
+    type: "object"
+    properties:
+      username:
+        type: "string"
+        description: "The user's username (email)."
+        example: "Test@example.com"
+      password:
+        type: "string"
+        description: "The user's password."
+        example: "m31298x1x3192mx"
+  ActivationToken:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+        description: "The activation UUID sent via the registration email."
+        example: "fdbf8654-322c-42ee-ad14-46fac40b6691"
+  OAuthToken:
+    type: "object"
+    properties:
+      access_token: 
+        type: "string"
+        description: "The generated JWT token."
+        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+      token_type:
+        type: "string"
+        description: "The type of the generated token."
+        example: "bearer"
+      expires_in:
+        type: "integer"
+        description: "The number of seconds until the JWT expires."
+        example: 3600
+    
+    
+  
