@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  mock:
+    build: ./mock
+    environment: 
+      WAIT_HOSTS: gateway:8080
+      WAIT_HOSTS_TIMEOUT: 180
+    links:
+     - gateway
+
+    

@@ -1,0 +1,513 @@
+{
+	"info": {
+		"_postman_id": "dad594d7-320d-4851-8b32-02436b7713b8",
+		"name": "SOA - Mock",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01 - Users - Register",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "337119df-523c-41c5-9900-d1a4e0a77235",
+						"exec": [
+							"var index = pm.variables.get(\"index\");",
+							"pm.environment.set(\"username\", pm.variables.get([\"users\", index, \"email\"].join(\".\")));",
+							"pm.environment.set(\"password\", pm.variables.get([\"users\", index, \"password\"].join(\".\")));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "13242916-5297-426a-b693-89630e0185c1",
+						"exec": [
+							"tests[\"Status code is 204\"] = (responseCode.code === 204);",
+							"",
+							"if (responseCode.code === 204) {",
+							"    postman.setNextRequest(\"02 - Users - Get Token\");",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"{{username}}\",\n\t\"password\": \"{{password}}\"\n}"
+				},
+				"url": {
+					"raw": "{{gateway-url}}/users",
+					"host": [
+						"{{gateway-url}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "02 - Users - Get Token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "337119df-523c-41c5-9900-d1a4e0a77235",
+						"exec": [
+							"var index = pm.variables.get(\"index\");",
+							"pm.environment.set(\"username\", pm.variables.get([\"users\", index, \"email\"].join(\".\")));",
+							"setTimeout(function(){}, 2000);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "13242916-5297-426a-b693-89630e0185c1",
+						"exec": [
+							"tests[\"Status code is 200\"] = (responseCode.code === 200);",
+							"",
+							"if (responseCode.code === 200) {",
+							"    var emails = JSON.parse(responseBody);",
+							"    if (emails.length) {",
+							"        var token = /<a href=\"https:\\/\\/[^#]*#\\/activate\\/([^\"]*)/gi.exec(emails[0].textAsHtml)[1];",
+							"        var index = pm.variables.get(\"index\");",
+							"        pm.environment.set([\"users\", index, \"activation\"].join(\".\"), token);",
+							"        pm.environment.set(\"retry\", \"5\");",
+							"        postman.setNextRequest(\"03 - Users - Activate\");",
+							"    } else {",
+							"        tests[\"Got a list of emails from API.\"] = false;",
+							"    }",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{smtp-url}}/api/emails?to={{username}}",
+					"host": [
+						"{{smtp-url}}"
+					],
+					"path": [
+						"api",
+						"emails"
+					],
+					"query": [
+						{
+							"key": "to",
+							"value": "{{username}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03 - Users - Activate",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "9f17c497-e610-4c9d-9fd0-dcd7942b04d7",
+						"exec": [
+							"var index = pm.variables.get(\"index\");",
+							"pm.environment.set(\"activation\", pm.variables.get([\"users\", index, \"activation\"].join(\".\")));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "a4d3fd01-1fc7-4c7f-bb95-f43f9b831267",
+						"exec": [
+							"tests[\"Status code is 204\"] = (responseCode.code === 204);",
+							"",
+							"if (responseCode.code === 204) {",
+							"    postman.setNextRequest(\"04 - Users - Login\");",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"token\": \"{{activation}}\"\n}"
+				},
+				"url": {
+					"raw": "{{gateway-url}}/users/activate",
+					"host": [
+						"{{gateway-url}}"
+					],
+					"path": [
+						"users",
+						"activate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "04 - Users - Login",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "64f13a82-41bb-41bd-9f45-639015c72ce4",
+						"exec": [
+							"var index = pm.variables.get(\"index\");",
+							"pm.environment.set(\"username\", pm.variables.get([\"users\", index, \"email\"].join(\".\")));",
+							"pm.environment.set(\"password\", pm.variables.get([\"users\", index, \"password\"].join(\".\")));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "789cbce3-59d7-494d-b908-9497ac5238a3",
+						"exec": [
+							"tests[\"Status code is 200\"] = (responseCode.code === 200);",
+							"",
+							"if (responseCode.code === 200) {",
+							"    var body = JSON.parse(responseBody);",
+							"    var index = parseInt(pm.variables.get(\"index\"), 10);",
+							"    pm.environment.set([\"users\", index, \"token\"].join(\".\"), body.access_token);",
+							"    if (index >= parseInt(pm.variables.get(\"users.length\"), 10)) {",
+							"        pm.environment.set(\"index\", \"1\");",
+							"        postman.setNextRequest(\"05 - Questions - Create\");",
+							"    }  else {",
+							"        pm.environment.set(\"index\", index + 1);",
+							"        postman.setNextRequest(\"01 - Users - Register\");",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic bG9jYWw6bXktbG9jYWwtc2VjcmV0",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "{{username}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{gateway-url}}/oauth/token",
+					"host": [
+						"{{gateway-url}}"
+					],
+					"path": [
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "05 - Questions - Create",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "cbdb3abb-7904-41a2-b91b-004a8db627ac",
+						"exec": [
+							"var index = pm.variables.get(\"index\");",
+							"pm.environment.set(\"title\", pm.variables.get([\"questions\", index, \"title\"].join(\".\")));",
+							"pm.environment.set(\"text\", pm.variables.get([\"questions\", index, \"text\"].join(\".\")));",
+							"",
+							"var user = pm.variables.get([\"questions\", index, \"author\"].join(\".\"));",
+							"pm.environment.set(\"token\", pm.variables.get([\"users\", user, \"token\"].join(\".\")));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "3a1f99b6-84fa-4278-9395-a81965706421",
+						"exec": [
+							"tests[\"Status code is 200\"] = (responseCode.code === 200);",
+							"",
+							"if (responseCode.code === 200) {",
+							"    var body = JSON.parse(responseBody);",
+							"    var index = parseInt(pm.variables.get(\"index\"), 10);",
+							"    pm.environment.set([\"questions\", index, \"id\"].join(\".\"), body._id);",
+							"    if (index >= parseInt(pm.variables.get(\"questions.length\"), 10)) {",
+							"        pm.environment.set(\"index\", \"1\");",
+							"        postman.setNextRequest(\"06 - Answers - Create\");",
+							"    }  else {",
+							"        pm.environment.set(\"index\", index + 1);",
+							"        postman.setNextRequest(\"05 - Questions - Create\");",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"title\": \"{{title}}\",\n\t\"text\": \"{{text}}\"\n}"
+				},
+				"url": {
+					"raw": "{{gateway-url}}/questions",
+					"host": [
+						"{{gateway-url}}"
+					],
+					"path": [
+						"questions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "06 - Answers - Create",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "5365ff92-e800-4be4-81f0-ee0731b04b09",
+						"exec": [
+							"var index = pm.variables.get(\"index\");",
+							"pm.environment.set(\"text\", pm.variables.get([\"answers\", index, \"text\"].join(\".\")));",
+							"",
+							"var user = pm.variables.get([\"answers\", index, \"author\"].join(\".\"));",
+							"pm.environment.set(\"token\", pm.variables.get([\"users\", user, \"token\"].join(\".\")));",
+							"",
+							"var question = pm.variables.get([\"answers\", index, \"question\"].join(\".\"));",
+							"pm.environment.set(\"question-id\", pm.variables.get([\"questions\", question, \"id\"].join(\".\")));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f2a66a34-0acc-4957-9b12-f20b7bb0ce78",
+						"exec": [
+							"tests[\"Status code is 200\"] = (responseCode.code === 200);",
+							"",
+							"if (responseCode.code === 200) {",
+							"    var body = JSON.parse(responseBody);",
+							"    var index = parseInt(pm.variables.get(\"index\"), 10);",
+							"    pm.environment.set([\"answers\", index, \"id\"].join(\".\"), body._id);",
+							"    if (index >= parseInt(pm.variables.get(\"answers.length\"), 10)) {",
+							"        pm.environment.set(\"index\", \"1\");",
+							"        postman.setNextRequest(\"07 - Votes - Create\");",
+							"    }  else {",
+							"        pm.environment.set(\"index\", index + 1);",
+							"        postman.setNextRequest(\"06 - Answers - Create\");",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"text\": \"{{text}}\"\n}"
+				},
+				"url": {
+					"raw": "{{gateway-url}}/questions/{{question-id}}/answers",
+					"host": [
+						"{{gateway-url}}"
+					],
+					"path": [
+						"questions",
+						"{{question-id}}",
+						"answers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "07 - Votes - Create",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "fad2ba4e-2bf0-45b2-9718-6819baf81f59",
+						"exec": [
+							"var index = pm.variables.get(\"index\");",
+							"pm.environment.set(\"positive\", pm.variables.get([\"votes\", index, \"positive\"].join(\".\")));",
+							"",
+							"var user = pm.variables.get([\"votes\", index, \"author\"].join(\".\"));",
+							"pm.environment.set(\"token\", pm.variables.get([\"users\", user, \"token\"].join(\".\")));",
+							"",
+							"var answer = pm.variables.get([\"votes\", index, \"answer\"].join(\".\"));",
+							"pm.environment.set(\"answer-id\", pm.variables.get([\"answers\", answer, \"id\"].join(\".\")));",
+							"",
+							"var question = pm.variables.get([\"answers\", answer, \"question\"].join(\".\"));",
+							"pm.environment.set(\"question-id\", pm.variables.get([\"questions\", question, \"id\"].join(\".\")));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "3e285137-d5f0-457e-9833-53cb53df8358",
+						"exec": [
+							"tests[\"Status code is 200\"] = (responseCode.code === 200);",
+							"",
+							"if (responseCode.code === 200) {",
+							"    var index = parseInt(pm.variables.get(\"index\"), 10);",
+							"    if (index < parseInt(pm.variables.get(\"votes.length\"), 10)) {",
+							"        pm.environment.set(\"index\", index + 1);",
+							"        postman.setNextRequest(\"07 - Votes - Create\");",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"positive\": {{positive}}\n}"
+				},
+				"url": {
+					"raw": "{{gateway-url}}/questions/{{question-id}}/answers/{{answer-id}}/vote",
+					"host": [
+						"{{gateway-url}}"
+					],
+					"path": [
+						"questions",
+						"{{question-id}}",
+						"answers",
+						"{{answer-id}}",
+						"vote"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

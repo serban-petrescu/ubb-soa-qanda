@@ -7,6 +7,10 @@ Throughout this documentation, we will refer to the customer of this system as *
 
 ## Table of contents
  - [Setup and Usage](#setup-and-usage)
+   * [Installation](#installation)
+   * [Mock Data](#mock-data)
+   * [SSL Certificate](#ssl-certificate)
+   * [SMTP Server](#smtp-server)
  - [Business Overview](#business-overview)
  - [Components](#components)
    * [Users Service](#users-service)
@@ -19,14 +23,20 @@ Throughout this documentation, we will refer to the customer of this system as *
  - [Integration Patterns](#integration-patterns)
 
 ## Setup and Usage
+### Installation
 [Docker](https://www.docker.com/get-started) is required for running this project.
 
 All the source code is provided in this repository. Once cloned or downloaded locally, the system may be build and started by running the following command inside the root of the local repository: `docker-compose up --build`.
 
 Depending on your docker version and settings, the UI will now be accessible on either [https://localhost/app/index.html](https://localhost/app/index.html) or [https://192.168.99.100/app/index.html](https://192.168.99.100/app/index.html). The `.env` file contains an entry `UI_BASE_URL` which must be adjusted accordingly in order for the registration emails to contain the correct URLs.
 
+### Mock Data
+For demonstration purposes, a set of mock data was included inside a separate docker container. The mock data is inserted via a scripted Postman collection. To generate the mock data on startup, use `docker-compose -f docker-compose.yaml -f docker-compose-mock.yaml up` instead of `docker-compose up` for starting the system.
+
+### SSL Certificate
 Due to the fact that the user interface uses [Service Workers](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API), SSL/TLS was enabled using a self-signed certificate. In order to get the [Push Notifications working](https://developer.mozilla.org/en-US/docs/Web/API/Push_API), either the certificate located at `gateway/qanda.p12` must be added to your trust store or your browser must ignore the certificate errors. In Chrome, this may be done using the following argument [--ignore-certificate-errors](https://superuser.com/a/1036062).
 
+### SMTP Server
 In place of a real email server, a dummy SMTP is also deployed inside a Docker container. This server fully emulates a real SMTP server, but stores all the incoming messages in memory and exposes them through a REST API and a HTML user interface. The list of sent emails can be accessed at [http://localhost:1080/](http://localhost:1080/) or [http://192.168.99.100:1080/)](http://192.168.99.100:1080/).
 
 ## Business Overview
